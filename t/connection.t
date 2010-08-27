@@ -11,5 +11,11 @@ print "=========RECV=======\n";
 # my $cv = AE::cv;
 # $con->connect( cb => sub { print "Hello,I'm callback.\n" },cv => $cv );
 $con->connect( cb => sub { print "Hello,I'm callback.\n" })->recv;
-print "======after connect\n";
-# $cv->recv;
+
+
+my $db = $con->get_database('test');
+my $col = $db->get_collection('anymongo');
+
+my $id = $col->insert({ name => 'mongo','test' => 5 });
+
+print $col->count();

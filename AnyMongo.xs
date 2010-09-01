@@ -34,7 +34,7 @@ bson_decode(char *bson)
     OUTPUT:
         RETVAL
 
-MODULE = AnyMongo  PACKAGE = AnyMongo::BSON::ObjectID
+MODULE = AnyMongo  PACKAGE = AnyMongo::BSON::OID
 
 PROTOTYPES: DISABLE
 
@@ -238,7 +238,9 @@ decode_bson_documents(SV *documents)
         // warn("buf.start:%p buf.end:%p document_lenth:%d",buf.start,buf.end,(int)SvCUR(documents));
         do {
             SV *sv;
+            // warn("perl_mongo_bson_to_sv...\n");
             sv = perl_mongo_bson_to_sv(&buf);
+            // warn("perl_mongo_bson_to_sv END...\n");
             av_push (ret, sv);
             buf.start = buf.pos;
         } while( buf.pos < buf.end);

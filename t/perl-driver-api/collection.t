@@ -2,12 +2,11 @@ use strict;
 use warnings;
 use Test::More;
 use Test::Exception;
-
+use Data::Dumper;
 use Data::Types qw(:float);
 use Tie::IxHash;
 use Encode qw(encode decode);
 
-use AnyMongo;
 use AnyMongo::Compat;
 
 my $conn;
@@ -377,7 +376,7 @@ SKIP: {
 
   SKIP: {
       skip "the version of the db you're running doesn't give error codes, you may wish to consider upgrading", 1 if !exists $db->last_error->{code};
-
+      
       is($db->last_error->{code}, 11000);
     }
 }
@@ -448,8 +447,9 @@ SKIP: {
     is($result->{'x'}, 4);
 }
 
-# autoload
-{
+# # autoload
+SKIP: {
+    skip 'Autoload not support anymore, skip',2 if 1;
     my $coll1 = $conn->foo->bar->baz;
     is($coll1->name, "bar.baz");
     is($coll1->full_name, "foo.bar.baz");

@@ -255,20 +255,22 @@ sub _make_safe {
     my $request_id = AnyMongo::MongoSupport::make_request_id();
     my $query = AnyMongo::MongoSupport::build_query_message(
         $request_id, $db.'.$cmd', 0, 0, -1, $last_error);
+    # $conn->recv($cursor);
     $conn->send_message("$req$query");
-    my $cursor = AnyMongo::Cursor->new(_ns => $db.'.$cmd', _connection => $conn,
-     _query => {},_request_id => $request_id);
 
-    $conn->recv($cursor);
-    my $ok = $cursor->next();
-
-    # $ok->{ok} is 1 if err is set
-    Carp::croak $ok->{err} if $ok->{err};
-    # $ok->{ok} == 0 is still an error
-    if (!$ok->{ok}) {
-        Carp::croak $ok->{errmsg};
+    my ($number_received,$cursor_id,$result) = $conn->recv_message();
+    # use Data::Dumper;
+    # warn "_make_safe getlasterror number_received:$number_received cursor_id:$cursor_id result=> ".Dumper($result);
+    
+    if ( $number_received == 1 ) {
+        my $ok = $result->[0];
+        # $result->{ok} is 1 if err is set
+        Carp::croak $ok->{err} if $ok->{err};
+        # $result->{ok} == 0 is still an error
+        if (!$ok->{ok}) {
+            Carp::croak $ok->{errmsg};
+        }
     }
-
     return 1;
 }
 

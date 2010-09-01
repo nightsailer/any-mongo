@@ -332,7 +332,9 @@ sub _read_documents {
     return unless $bson_buf;
     # warn "#_read_documents:bson_buf size:".length($bson_buf);
     # my $docs = decode_bson_documents($bson_buf,length($bson_buf));
+    # warn '#_read_documents decode_bson_documents ...';
     my $docs = decode_bson_documents($bson_buf);
+    # warn "docs:$docs";
     # warn "#_read_documents:".Dumper($docs)."\n";
     
     

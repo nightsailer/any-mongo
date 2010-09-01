@@ -36,7 +36,6 @@ use Test::More;
 use Test::Exception;
 use Tie::IxHash;
 use AnyEvent;
-use EV;
 use AnyMongo;
 use Data::Dumper;
 

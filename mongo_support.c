@@ -267,7 +267,7 @@ oid_to_sv (buffer *buf)
     id_hv = newHV();
     hv_store(id_hv, "value", strlen("value"), newSVpvn(oid_s, 24), 0);
 
-    stash = gv_stashpv("AnyMongo::BSON::ObjectID", 0);
+    stash = gv_stashpv("AnyMongo::BSON::OID", 0);
     return sv_bless(newRV_noinc((SV *)id_hv), stash);
 }
 
@@ -519,13 +519,19 @@ elem_to_sv (int type, buffer *buf)
     break;
   }
   case BSON_MINKEY: {
-    HV *stash = gv_stashpv("AnyMongo::BSON::MinKey", 0);
+      // warn("BSON_MINKEY +++");
+    HV *stash = gv_stashpv("AnyMongo::BSON::MinKey", GV_ADD);
+        // warn("BSON_MINKEY ---");
     value = sv_bless(newRV((SV*)newHV()), stash);
+        // warn("BSON_MINKEY ===");
     break;
   }
   case BSON_MAXKEY: {
-    HV *stash = gv_stashpv("AnyMongo::BSON::MaxKey", 0);
+      // warn("BSON_MAXKEY +++");
+    HV *stash = gv_stashpv("AnyMongo::BSON::MaxKey", GV_ADD);
+    // warn("BSON_MINKEY ---");
     value = sv_bless(newRV((SV*)newHV()), stash);
+    // warn("BSON_MINKEY ===");
     break;
   }
   default: {
@@ -571,6 +577,8 @@ perl_mongo_bson_to_sv (buffer *buf)
     // for size
     buf->pos += INT_32;
   
+    // warn("perl_mongo_bson_to_sv before while");
+    int i=0;
     while ((type = *buf->pos++) != 0) {
       char *name;
       SV *value;
@@ -578,13 +586,17 @@ perl_mongo_bson_to_sv (buffer *buf)
       name = buf->pos;
       // get past field name
       buf->pos += strlen(buf->pos) + 1;
+      // warn("elem_to_sv BEGIN %d",i);
 
       // get value
       value = elem_to_sv(type, buf);
+      // warn("elem_to_sv END %d",i++);
+      
       if (!hv_store (ret, name, strlen (name), value, 0)) {
         croak ("failed storing value in hash");
       }
     }
+    
 
     return newRV_noinc ((SV *)ret);
 }
@@ -790,7 +802,7 @@ perl_mongo_prep(buffer *buf, AV *ids) {
   HV *id_hv, *stash;
   char id_s[12], oid_s[25];
 
-  stash = gv_stashpv("AnyMongo::BSON::ObjectID", 0);
+  stash = gv_stashpv("AnyMongo::BSON::OID", 0);
 
   perl_mongo_make_id(id_s);
   set_type(buf, BSON_OID);
@@ -1050,7 +1062,7 @@ append_sv (buffer *buf, const char *key, SV *sv, stackette *stack, int is_insert
     if (SvROK (sv)) {
         if (sv_isobject (sv)) {
             /* OIDs */
-            if (sv_derived_from (sv, "AnyMongo::BSON::ObjectID")) {
+            if (sv_derived_from (sv, "AnyMongo::BSON::OID")) {
                 SV *attr = perl_mongo_call_reader (sv, "value");
                 char *str = SvPV_nolen (attr);
 
@@ -1151,7 +1163,7 @@ append_sv (buffer *buf, const char *key, SV *sv, stackette *stack, int is_insert
               perl_mongo_serialize_key(buf, key, is_insert);
               perl_mongo_serialize_byte(buf, SvIV(SvRV(sv)));
             }
-            else if (sv_isa(sv, "AnyMongo::BSON::Code")) {
+            else if (sv_isa(sv, "AnyMongo::BSON::Code") || sv_derived_from(sv,"AnyMongo::BSON::Code")) {
               SV *code, *scope;
               char *code_str;
               STRLEN code_len;
@@ -1176,7 +1188,7 @@ append_sv (buffer *buf, const char *key, SV *sv, stackette *stack, int is_insert
               SvREFCNT_dec(code);
               SvREFCNT_dec(scope);
             }
-            else if (sv_isa(sv, "AnyMongo::BSON::Timestamp")) {
+            else if (sv_isa(sv, "AnyMongo::BSON::Timestamp") || sv_derived_from(sv,"AnyMongo::BSON::Timestamp")) {
               SV *sec, *inc;
               set_type(buf, BSON_TIMESTAMP);
               perl_mongo_serialize_key(buf, key, is_insert);
@@ -1189,11 +1201,11 @@ append_sv (buffer *buf, const char *key, SV *sv, stackette *stack, int is_insert
               SvREFCNT_dec(sec);
               SvREFCNT_dec(inc);
             }
-            else if (sv_isa(sv, "AnyMongo::BSON::MinKey")) {
+            else if (sv_isa(sv, "AnyMongo::BSON::MinKey") || sv_isa(sv, "MongoDB::MinKey")) {
               set_type(buf, BSON_MINKEY);
               perl_mongo_serialize_key(buf, key, is_insert);
             }
-            else if (sv_isa(sv, "AnyMongo::BSON::MaxKey")) {
+            else if (sv_isa(sv, "AnyMongo::BSON::MaxKey") || sv_isa(sv, "MongoDB::MaxKey")) {
               set_type(buf, BSON_MAXKEY);
               perl_mongo_serialize_key(buf, key, is_insert);
             }

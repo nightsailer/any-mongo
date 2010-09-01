@@ -2,7 +2,7 @@ package AnyMongo::BSON::OID;
 
 use strict;
 use warnings;
-use namespace::autoclean;
+# use namespace::autoclean;
 use AnyMongo;
 use Any::Moose;
 
@@ -84,6 +84,7 @@ sub to_string {
     $self->value;
 }
 
+
 =head2 get_time
 
     my $date = DateTime->from_epoch(epoch => $id->get_time);
@@ -127,8 +128,12 @@ use overload
     '""' => \&to_string,
     'fallback' => 1;
 
+no Any::Moose;
+
 __PACKAGE__->meta->make_immutable (inline_destructor => 0);
+
 1;
+
 __END__
 
 

@@ -3,7 +3,6 @@ use warnings;
 use Test::More;
 use Test::Exception;
 
-use AnyMongo;
 use AnyMongo::Compat;
 use boolean;
 use DateTime;
@@ -16,7 +15,7 @@ eval {
     if (exists $ENV{MONGOD}) {
         $host = $ENV{MONGOD};
     }
-    $conn = AnyMongo::Connection->new(host => $host);
+    $conn = MongoDB::Connection->new(host => $host);
 };
 
 if ($@) {
@@ -44,7 +43,7 @@ my $c = $db->get_collection('bar');
     $c->drop;
 
     my $med_str = "z" x 4014;
-    $c->insert({'text' => $med_str, 'id2' => AnyMongo::OID->new});
+    $c->insert({'text' => $med_str, 'id2' => MongoDB::OID->new});
     my $result = $c->find_one;
     is($result->{'text'}, $med_str, 'id realloc');
 }
@@ -58,10 +57,10 @@ my $c = $db->get_collection('bar');
                 "b" => true,
                 "a" => {"foo" => "bar",
                         "n" => undef,
-                        "x" => AnyMongo::OID->new("49b6d9fb17330414a0c63102")},
+                        "x" => MongoDB::OID->new("49b6d9fb17330414a0c63102")},
                 "d2" => DateTime->from_epoch(epoch => 1271079861),
                 "regex" => qr/xtz/,
-                "_id" => AnyMongo::OID->new("49b6d9fb17330414a0c63101"),
+                "_id" => MongoDB::OID->new("49b6d9fb17330414a0c63101"),
                 "string" => "string"});
       
     my $obj = $c->find_one;
@@ -72,11 +71,11 @@ my $c = $db->get_collection('bar');
     is($obj->{'b'}, true);
     is($obj->{'a'}->{'foo'}, 'bar');
     is($obj->{'a'}->{'n'}, undef);
-    isa_ok($obj->{'a'}->{'x'}, 'AnyMongo::OID');
+    isa_ok($obj->{'a'}->{'x'}, 'MongoDB::OID');
     isa_ok($obj->{'d2'}, 'DateTime');
     is($obj->{'d2'}->epoch, 1271079861);
     ok($obj->{'regex'});
-    isa_ok($obj->{'_id'}, 'AnyMongo::OID');
+    isa_ok($obj->{'_id'}, 'MongoDB::OID');
     is($obj->{'_id'}, $id);
     is($obj->{'string'}, 'string');
 }
@@ -91,7 +90,7 @@ my $c = $db->get_collection('bar');
 }
 
 {
-    $AnyMongo::BSON::char = ":";
+    $MongoDB::BSON::char = ":";
     $c->drop;
     $c->batch_insert([{x => 1}, {x => 2}, {x => 3}, {x => 4}, {x => 5}]);
     my $cursor = $c->query({x => {":gt" => 2, ":lte" => 4}})->sort({x => 1});

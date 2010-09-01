@@ -261,7 +261,8 @@ sub send_initial_query {
         $opts, $self->_skip, $self->_limit, $self->_query, $self->_fields);
     $self->_connection->send_message($query);
     my ($number_received,$cursor_id,$result) = $self->_connection->recv_message();
-    warn "#send_initial_query number_received:$number_received cursor_id:".sprintf('%x',$cursor_id)." result#:".@{$result} if $self->_print_debug;
+    # warn "#send_initial_query number_received:$number_received cursor_id:".sprintf('%x',$cursor_id)." result#:".@{$result} if $self->_print_debug;
+    # warn "#send_initial_query number_received:$number_received cursor_id:".sprintf('%x',$cursor_id);
     push @{$self->{_result_cache}},@{$result} if $result;
     $self->{number_received} = $number_received;
     $self->{cursor_id} = $cursor_id;
@@ -291,12 +292,6 @@ sub next_document {
     warn "refill_via_get_more done.\n" if $self->_print_debug;
     
     my $doc = shift @{ $self->{_result_cache} };
-    
-    # {
-    #     use Data::Dumper;
-    #     warn Dumper($doc);
-    # }
-    
     
     if ($doc and $doc->{'$err'}) {
         my $err = $doc->{'$err'};

@@ -2,10 +2,11 @@ use strict;
 use warnings;
 use Test::More;
 use Test::Exception;
-use AnyMongo;
 use AnyMongo::Compat;
 use DateTime;
 use JSON;
+use Data::Dumper;
+
 my $conn;
 eval {
     my $host = "localhost";
@@ -99,12 +100,14 @@ my $date = $coll->find_one;
 is($date->{'date'}->epoch, $now->epoch);
 is($date->{'date'}->day_of_week, $now->day_of_week);
 
+
 my $past = DateTime->from_epoch('epoch' => 1234567890);
 
 $coll->insert({'date' => $past});
 $date = $coll->find_one({'date' => $past});
 
 is($date->{'date'}->epoch, 1234567890);
+
 
 # minkey/maxkey
 $coll->drop;
@@ -114,7 +117,6 @@ my $max = bless {}, "MongoDB::MaxKey";
 
 $coll->insert({min => $min, max => $max});
 my $x = $coll->find_one;
-
 isa_ok($x->{min}, 'MongoDB::MinKey');
 isa_ok($x->{max}, 'MongoDB::MaxKey');
 
@@ -192,18 +194,18 @@ isa_ok($x->{max}, 'MongoDB::MaxKey');
     $scope = $ret_code->scope;
     is(keys %$scope, 0);
     is($ret_code->code, $str);
-
+    
     my $x = $db->eval($code);
     is($x, 5);
-
+    
     $str = "function() { return name; }";
     $code = MongoDB::Code->new("code" => $str,
                                "scope" => {"name" => "Fred"});
     $x = $db->eval($code);
     is($x, "Fred");
-
+    
     $coll->remove;
-
+    
     $coll->insert({"x" => "foo", "y" => $code, "z" => 1});
     $x = $coll->find_one;
     is($x->{x}, "foo");
@@ -244,7 +246,7 @@ SKIP: {
     $coll->insert({"ts" => $t});
 
     my $x = $coll->find_one;
-
+    
     is($x->{'ts'}->sec, $t->sec);
     is($x->{'ts'}->inc, $t->inc);
 }
@@ -262,11 +264,11 @@ SKIP: {
     isa_ok($x->{y}, 'SCALAR');
     is($x->{x}, 1);
     is($x->{y}, 0);
-
+    
     $MongoDB::BSON::use_boolean = 1;
-
+    
     $x = $coll->find_one;
-
+    
     isa_ok($x->{x}, 'boolean');
     isa_ok($x->{y}, 'boolean');
     is($x->{x}, boolean::true);

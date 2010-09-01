@@ -73,6 +73,10 @@ sub last_error {
 sub run_command {
     my ($self, $command) = @_;
     my $obj = $self->get_collection('$cmd')->find_one($command);
+    
+    # use Data::Dumper;
+    # warn "run_command:".Dumper($obj);
+    
     return $obj if ref $obj && $obj->{ok};
     $obj->{'errmsg'};
 }

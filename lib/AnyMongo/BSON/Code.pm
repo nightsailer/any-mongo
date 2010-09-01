@@ -31,7 +31,8 @@ has scope => (
     required => 0,
 );
 
-__PACKAGE__->meta->make_immutable (inline_destructor => 0);
+# __PACKAGE__->meta->make_immutable (inline_destructor => 0);
+__PACKAGE__->meta->make_immutable;
 1;
 __END__
 

@@ -252,7 +252,7 @@ sub send_initial_query {
         return 0;
     }
 
-    warn "#send_initial_query ...\n" if $self->_print_debug;
+    # warn "#send_initial_query ...\n" if $self->_print_debug;
 
     my $opts = $AnyMongo::Cursor::slave_okay | ($self->tailable << 1) | 
         ($self->slave_okay << 2) | ($self->immortal << 4);
@@ -275,7 +275,7 @@ sub send_initial_query {
 
 sub next {
     my ($self) = @_;
-     warn "#next ...\n" if $self->_print_debug;
+     # warn "#next ...\n" if $self->_print_debug;
     return $self->next_document if $self->has_next && ( $self->{_limit} <= 0
          || $self->{at} < $self->{_limit} );
 
@@ -285,11 +285,11 @@ sub next {
 sub next_document {
     my ($self) = @_;
     
-    warn "refill_via_get_more ...\n" if $self->_print_debug;
+    # warn "refill_via_get_more ...\n" if $self->_print_debug;
     
     $self->refill_via_get_more if $self->num_remaining == 0;
     
-    warn "refill_via_get_more done.\n" if $self->_print_debug;
+    # warn "refill_via_get_more done.\n" if $self->_print_debug;
     
     my $doc = shift @{ $self->{_result_cache} };
     
@@ -298,7 +298,7 @@ sub next_document {
         # todo:"not master"
         Carp::croak "query error: $err";
     }
-    warn 'leave next_document' if $self->_print_debug;
+    # warn 'leave next_document' if $self->_print_debug;
     $self->{at}++;
     $doc;
 }
@@ -307,7 +307,7 @@ sub has_next { shift->num_remaining > 0 }
 
 sub reset {
     my ($self) = @_;
-    warn "#reset ...\n" if $self->_print_debug;
+    # warn "#reset ...\n" if $self->_print_debug;
     $self->{query_run} = 0;
     $self->{closed} = 0;
     $self->kill_cursor;
@@ -319,30 +319,30 @@ sub reset {
 sub refill_via_get_more {
     my ($self) = @_;
     
-    warn "#refill_via_get_more...\n" if $self->_print_debug;
+    # warn "#refill_via_get_more...\n" if $self->_print_debug;
     
     return if $self->send_initial_query || $self->{cursor_id} == 0;
     
     my $request_id = $self->_next_request_id;
-    warn "#refill_via_get_more > build_get_more_message<
-        request_id:$request_id
-        _ns: ".$self->_ns."
-        cursor_id:".$self->{cursor_id}."
-        batch_size:".$self->batch_size."
-    >...\n" if $self->_print_debug;
+    # warn "#refill_via_get_more > build_get_more_message<
+    #     request_id:$request_id
+    #     _ns: ".$self->_ns."
+    #     cursor_id:".$self->{cursor_id}."
+    #     batch_size:".$self->batch_size."
+    # >...\n" if $self->_print_debug;
     # get_more
     my $get_more_message = AnyMongo::MongoSupport::build_get_more_message(
         $request_id,
         $self->_ns,
         $self->{cursor_id},
         $self->batch_size);
-    warn "#refill_via_get_more > send_message...\n" if $self->_print_debug;
+    # warn "#refill_via_get_more > send_message...\n" if $self->_print_debug;
     $self->_connection->send_message($get_more_message);
     
-    warn "#refill_via_get_more > recv_message...\n" if $self->_print_debug;
+    # warn "#refill_via_get_more > recv_message...\n" if $self->_print_debug;
     my ($number_received,$cursor_id,$result) = $self->_connection->recv_message();
     
-    warn "#refill_via_get_more > got number_received:$number_received cursor_id:$cursor_id...\n" if $self->_print_debug;
+    # warn "#refill_via_get_more > got number_received:$number_received cursor_id:$cursor_id...\n" if $self->_print_debug;
     
     $self->{cursor_id} = $cursor_id;
     
@@ -355,20 +355,20 @@ sub refill_via_get_more {
 
 sub close_cursor_if_query_complete {
     my ($self) = @_;
-    warn "#close_cursor_if_query_complete ...\n" if $self->_print_debug;
+    # warn "#close_cursor_if_query_complete ...\n" if $self->_print_debug;
     $self->close if $self->_limit >0 && $self->{number_received} >= $self->_limit;
 }
 
 sub num_remaining {
     my ($self) = @_;
-    warn "#num_remaining ...\n" if $self->_print_debug;
+    # warn "#num_remaining ...\n" if $self->_print_debug;
     $self->refill_via_get_more if @{$self->{_result_cache}} == 0;
     return scalar @{$self->{_result_cache}};
 }
 
 sub close {
     my ($self) = @_;
-    warn "#close ...\n" if $self->_print_debug;
+    # warn "#close ...\n" if $self->_print_debug;
     $self->kill_cursor if $self->{cursor_id};
     $self->{cursor_id} = 0;
     $self->{closed} = 1;
@@ -377,7 +377,7 @@ sub close {
 
 sub kill_cursor {
     my ($self) = @_;
-    warn "#kill_cursor ...\n" if $self->_print_debug;
+    # warn "#kill_cursor ...\n" if $self->_print_debug;
     return unless $self->{cursor_id};
     my $message = AnyMongo::MongoSupport::build_kill_cursor_message($self->_next_request_id,$self->{cursor_id});
     $self->_connection->send_message($message);
@@ -396,8 +396,7 @@ sub _next_request_id {
     $self->_request_id;
 }
 
-
-__PACKAGE__->meta->make_immutable (inline_destructor => 0);
+__PACKAGE__->meta->make_immutable;
 1;
 __END__
 

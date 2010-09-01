@@ -133,7 +133,7 @@ sub BUILD { shift->_init }
 sub _init {
     my ($self) = @_;
     eval "use ${_}" # no Any::Moose::load_class becase the namespaces already have symbols from the xs bootstrap
-        for qw/AnyMongo::Database AnyMongo::Cursor AnyMongo::BSON::ObjectID/;
+        for qw/AnyMongo::Database AnyMongo::Cursor AnyMongo::BSON::OID/;
     $self->_parse_servers();
     if ($self->auto_connect) {
         $self->connect->recv;
@@ -182,7 +182,7 @@ sub _connect_one {
     my ($host,$port) = @{$mongo_servers->{$server_key}}{'host','port'};
     $cv->begin if $cv;
     
-    warn "connect to $server_key" if DEBUG;
+    # warn "connect to $server_key" if DEBUG;
     
     my $server = $mongo_servers->{$server_key};
     $server->{guard} = tcp_connect $host,$port, sub {
@@ -386,8 +386,7 @@ sub authenticate {
     return $result;
 }
 
-
-__PACKAGE__->meta->make_immutable (inline_destructor => 0);
+__PACKAGE__->meta->make_immutable;
 
 1;
 __END__

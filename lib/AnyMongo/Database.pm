@@ -73,10 +73,6 @@ sub last_error {
 sub run_command {
     my ($self, $command) = @_;
     my $obj = $self->get_collection('$cmd')->find_one($command);
-    
-    # use Data::Dumper;
-    # warn "run_command:".Dumper($obj);
-    
     return $obj if ref $obj && $obj->{ok};
     $obj->{'errmsg'};
 }
@@ -102,16 +98,7 @@ __PACKAGE__->meta->make_immutable;
 1;
 __END__
 
-
-=head1 NAME
-
-MongoDB::AnyEvent::Database 
-
 =head1 SYNOPSIS
 
 =head1 DESCRIPTION
-
-=head1 AUTHOR
-
-=head1 COPYRIGHT
 

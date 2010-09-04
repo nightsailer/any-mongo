@@ -21,11 +21,10 @@ use constant {
     OP_DELETE	=> 2006, #Delete documents
     OP_KILL_CURSORS  => 2007,
     # flags
-    REPLY_CURSOR_NOT_FOUND     => 1, 
+    REPLY_CURSOR_NOT_FOUND     => 1,
     REPLY_QUERY_FAILURE        => 2,
     REPLY_SHARD_CONFIG_STALE   => 4,
     REPLY_AWAIT_CAPABLE        => 8,
-    
 };
 
 use Carp qw(croak);
@@ -141,7 +140,7 @@ sub _init {
         #     $self->authenticate($self->db_name, $self->username, $self->password);
         # }
     }
-    
+
 }
 
 sub connect {
@@ -152,9 +151,9 @@ sub connect {
 
     $self->{_connected_server_count} = 0;
     $self->{_is_connected} = 0;
-    
+
     $args{cv}->begin if $args{cv};
-    
+
     my $connect_cv = AE::cv {
         if (! $self->{_connected_server_count} ) {
             delete $self->{mongo_servers};
@@ -174,16 +173,16 @@ sub connect {
 
 sub _connect_one {
     my ($self, $server_key, $cv) = @_;
-    
+
     my $mongo_servers = $self->{mongo_servers};
-    
+
     return if $mongo_servers->{$server_key}->{guard};
-    
+
     my ($host,$port) = @{$mongo_servers->{$server_key}}{'host','port'};
     $cv->begin if $cv;
-    
+
     # warn "connect to $server_key" if DEBUG;
-    
+
     my $server = $mongo_servers->{$server_key};
     $server->{guard} = tcp_connect $host,$port, sub {
         my ($fh, $host, $port) = @_;
@@ -202,7 +201,7 @@ sub _connect_one {
                 },
                 on_error => sub {
                     my ($hdl, $fatal, $msg) = @_;
-                    warn "got error $msg\n" if DEBUG; 
+                    warn "got error $msg\n" if DEBUG;
                     my $h = delete $server->{handler};
                     $h->destroy();
                     delete $server->{guard};
@@ -217,7 +216,6 @@ sub _connect_one {
         }
         $cv->end if $cv;
     };
-    
 }
 
 
@@ -260,9 +258,9 @@ sub recv_message {
     my ($self) = @_;
     my $hd = $self->master_handler;
     my ($message_length,$request_id,$response_to,$op) = $self->_receive_header;
-    warn "length:$message_length request_id:$request_id response_to:$response_to op:$op\n" if DEBUG;
+    # warn "length:$message_length request_id:$request_id response_to:$response_to op:$op\n" if DEBUG;
     my ($response_flags,$cursor_id,$starting_from,$number_returned) = $self->_receive_response_header();
-    warn "response_flags:$response_flags cursor_id:$cursor_id starting_from:$starting_from number_returned:$number_returned\n" if DEBUG;
+    # warn "response_flags:$response_flags cursor_id:$cursor_id starting_from:$starting_from number_returned:$number_returned\n" if DEBUG;
     $self->_check_respone_flags($response_flags);
     my $results =  $self->_read_documents($message_length-36,$cursor_id);
     # my $results =  $self->_read_documents($number_returned,$cursor_id);
@@ -306,7 +304,6 @@ sub _receive_response_header {
 }
 
 sub _read_documents {
-    
     # my ($self,$number_remaining,$cursor_id) = @_;
     # my $docs = [];
     # 
@@ -327,7 +324,6 @@ sub _read_documents {
     #     $bson_buf .= $self->receive_data($buf_len);
     #     $remaining -= $buf_len;
     # } while ($remaining >0 );
-    
     $bson_buf = $self->receive_data($doc_message_length);
     return unless $bson_buf;
     # warn "#_read_documents:bson_buf size:".length($bson_buf);
@@ -336,8 +332,6 @@ sub _read_documents {
     my $docs = decode_bson_documents($bson_buf);
     # warn "docs:$docs";
     # warn "#_read_documents:".Dumper($docs)."\n";
-    
-    
     return $docs;
 }
 
@@ -378,7 +372,7 @@ sub authenticate {
     # run the login command
     my $login = tie(my %hash, 'Tie::IxHash');
     %hash = (authenticate => 1,
-             user => $username, 
+             user => $username,
              nonce => $nonce,
              key => $digest);
     $result = $db->run_command($login);
@@ -386,21 +380,31 @@ sub authenticate {
     return $result;
 }
 
+sub disconnect {
+    my ($self) = @_;
+    return unless $self->{_is_connected};
+    my %servers = %{ $self->{mongo_servers} };
+    my @connected_keys = grep { $servers{$_}->{handler}  } keys %servers;
+    $self->clear_master_handler;
+    foreach my $k (@connected_keys) {
+        my $h = delete $servers{$k}->{handler};
+        $h->destroy() if $h;
+        delete $servers{$k}->{guard};
+    }
+    $self->{mongo_servers} = {};
+    $self->{_connected_server_count} = 0;
+    $self->{_is_connected} = 0;
+}
+
+sub DEMOLISH {
+    shift->disconnect;
+}
+
 __PACKAGE__->meta->make_immutable;
 
 1;
 __END__
 
-
-=head1 NAME
-
-MongoDB::AnyEvent::Connection 
-
 =head1 SYNOPSIS
 
 =head1 DESCRIPTION
-
-=head1 AUTHOR
-
-=head1 COPYRIGHT
-

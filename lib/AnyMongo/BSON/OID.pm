@@ -1,23 +1,19 @@
 package AnyMongo::BSON::OID;
-
+# ABSTRACT: A Mongo ObjectId
 use strict;
 use warnings;
 # use namespace::autoclean;
 use AnyMongo;
 use Any::Moose;
 
-=head1 NAME
-
-AnyMongo::BSON::OID - A Mongo ObjectId
-
 =head1 SYNOPSIS
 
-If no C<_id> field is provided when a document is inserted into the database, an 
+If no C<_id> field is provided when a document is inserted into the database, an
 C<_id> field will be added with a new C<MongoDB::OID> as its value.
 
     my $id = $collection->insert({'name' => 'Alice', age => 20});
 
-C<$id> will be a C<MongoDB::OID> that can be used to retreive or update the 
+C<$id> will be a C<MongoDB::OID> that can be used to retreive or update the
 saved document:
 
     $collection->update({_id => $id}, {'age' => {'$inc' => 1}});
@@ -55,11 +51,10 @@ has value => (
     builder => 'build_value',
 );
 
-sub BUILDARGS { 
-    my $class = shift; 
-    return $class->SUPER::BUILDARGS(flibble => @_)
-        if @_ % 2; 
-    return $class->SUPER::BUILDARGS(@_); 
+sub BUILDARGS {
+    my $class = shift;
+    return $class->SUPER::BUILDARGS(flibble => @_) if @_ % 2;
+    return $class->SUPER::BUILDARGS(@_);
 }
 
 sub build_value {

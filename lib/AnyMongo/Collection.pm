@@ -37,9 +37,8 @@ sub to_index_string {
     my $keys = shift;
 
     my @name;
-    if (ref $keys eq 'ARRAY' ||
-        ref $keys eq 'HASH' ) {
-        
+    if (ref $keys eq 'ARRAY' || ref $keys eq 'HASH' ) {
+
         while ((my $idx, my $d) = each(%$keys)) {
             push @name, $idx;
             push @name, $d;
@@ -82,11 +81,11 @@ sub find {
     my $conn = $self->_database->_connection;
     my $ns = $self->full_name;
     my $cursor = AnyMongo::Cursor->new(
-	_connection => $conn,
-	_ns => $ns, 
-	_query => $q, 
-	_limit => $limit, 
-	_skip => $skip
+	    _connection => $conn,
+	    _ns => $ns,
+	    _query => $q,
+	    _limit => $limit,
+	    _skip => $skip
     );
     return $cursor;
 }
@@ -125,7 +124,6 @@ sub batch_insert {
 
      if (defined($options) && $options->{safe}) {
          my $ok = $self->_make_safe($insert);
-        
          if (!$ok) {
              return 0;
          }
@@ -133,7 +131,7 @@ sub batch_insert {
      else {
          $conn->send_message($insert);
      }
-    
+
      return @$ids;
 }
 
@@ -193,7 +191,7 @@ sub remove {
             return $ok;
         }
     }
-    else { 
+    else {
         $just_one = $options || 0;
     }
 
@@ -215,7 +213,7 @@ sub ensure_index {
     #    element isn't a direction (or at least a good one)
     #  - Tie::IxHash has values like "ascending"
     if (($options && ref $options ne 'HASH') ||
-        (ref $keys eq 'ARRAY' && 
+        (ref $keys eq 'ARRAY' &&
          ($#$keys == 0 || $#$keys >= 1 && !($keys->[1] =~ /-?1/))) ||
         (ref $keys eq 'Tie::IxHash' && $keys->[2][0] =~ /(de|a)scending/)) {
         Carp::croak("you're using the old ensure_index format, please upgrade");
@@ -261,7 +259,7 @@ sub _make_safe {
     my ($number_received,$cursor_id,$result) = $conn->recv_message();
     # use Data::Dumper;
     # warn "_make_safe getlasterror number_received:$number_received cursor_id:$cursor_id result=> ".Dumper($result);
-    
+
     if ( $number_received == 1 ) {
         my $ok = $result->[0];
         # $result->{ok} is 1 if err is set

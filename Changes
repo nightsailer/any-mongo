@@ -1,0 +1,8 @@
+Revision history for AnyMongo
+
+{{$NEXT}}
+    - fix dzil configuration error.
+    - build documents minor.
+
+0.01
+    - Initialize prototype

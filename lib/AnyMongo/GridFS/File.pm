@@ -1,4 +1,4 @@
-package AnyMongoDB::GridFS::File;
+package AnyMongo::GridFS::File;
 # ABSTRACT: A un-blocking Mongo GridFS file
 use strict;
 use warnings;

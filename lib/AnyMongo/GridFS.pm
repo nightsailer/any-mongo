@@ -1,4 +1,4 @@
-package AnyMongoDB::GridFS;
+package AnyMongo::GridFS;
 # ABSTRACT: Asynchronous MongoDB::GridFS
 use strict;
 use warnings;

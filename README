@@ -1,0 +1,27 @@
+NAME
+    AnyMongo - Asynchronous non-blocking MongoDB driver for AnyEvent
+    applications
+
+VERSION
+    version 0.02
+
+MongoDB compatiblity
+    You can try AnyMongo::Compat, this wrapper package try to make
+    compatible with MongoDB as possible.
+
+INSTALLATION
+    See INSTALL.
+
+SEE ALSO
+    You must check MongoDB, because most code of AnyMongo just stolen from
+    it.
+
+AUTHOR
+    Pan Fan(nightsailer) <nightsailer@gmail.com>
+
+COPYRIGHT AND LICENSE
+    This software is copyright (c) 2010 by Pan Fan(nightsailer).
+
+    This is free software; you can redistribute it and/or modify it under
+    the same terms as the Perl 5 programming language system itself.
+

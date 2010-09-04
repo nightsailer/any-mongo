@@ -1,5 +1,5 @@
 package AnyMongo::Cursor;
-
+#ABSTRACT: A asynchronous cursor/iterator for Mongo query results
 use strict;
 use warnings;
 use namespace::autoclean;
@@ -138,14 +138,13 @@ sub _ensure_special {
     }
 
     $self->_grrrr(1);
-    $self->_query({'query' => $self->_query})
+    $self->_query({'query' => $self->_query});
 }
 
 sub fields {
     my ($self, $f) = @_;
     $self->_check_modifiable;
-    confess 'not a hash reference' 
-	unless ref $f eq 'HASH';
+    confess 'not a hash reference' unless ref $f eq 'HASH';
 
     $self->_fields($f);
     return $self;
@@ -213,7 +212,7 @@ sub count {
     my ($self, $all) = @_;
 
     my ($db, $coll) = $self->_ns =~ m/^([^\.]+)\.(.*)/;
-    my $cmd = new Tie::IxHash(count => $coll);
+    my $cmd = Tie::IxHash->new(count => $coll);
 
     if ($self->_grrrr) {
         $cmd->Push(query => $self->_query->{'query'});
@@ -254,10 +253,10 @@ sub send_initial_query {
 
     # warn "#send_initial_query ...\n" if $self->_print_debug;
 
-    my $opts = $AnyMongo::Cursor::slave_okay | ($self->tailable << 1) | 
+    my $opts = $AnyMongo::Cursor::slave_okay | ($self->tailable << 1) |
         ($self->slave_okay << 2) | ($self->immortal << 4);
 
-    my $query = AnyMongo::MongoSupport::build_query_message($self->_next_request_id,$self->_ns, 
+    my $query = AnyMongo::MongoSupport::build_query_message($self->_next_request_id,$self->_ns,
         $opts, $self->_skip, $self->_limit, $self->_query, $self->_fields);
     $self->_connection->send_message($query);
     my ($number_received,$cursor_id,$result) = $self->_connection->recv_message();
@@ -268,7 +267,7 @@ sub send_initial_query {
     $self->{cursor_id} = $cursor_id;
     $self->{query_run} = 1;
     $self->close_cursor_if_query_complete;
-    
+
     return 1;
 }
 
@@ -284,15 +283,15 @@ sub next {
 
 sub next_document {
     my ($self) = @_;
-    
+
     # warn "refill_via_get_more ...\n" if $self->_print_debug;
-    
+
     $self->refill_via_get_more if $self->num_remaining == 0;
-    
+
     # warn "refill_via_get_more done.\n" if $self->_print_debug;
-    
+
     my $doc = shift @{ $self->{_result_cache} };
-    
+
     if ($doc and $doc->{'$err'}) {
         my $err = $doc->{'$err'};
         # todo:"not master"
@@ -318,11 +317,11 @@ sub reset {
 
 sub refill_via_get_more {
     my ($self) = @_;
-    
+
     # warn "#refill_via_get_more...\n" if $self->_print_debug;
-    
+
     return if $self->send_initial_query || $self->{cursor_id} == 0;
-    
+
     my $request_id = $self->_next_request_id;
     # warn "#refill_via_get_more > build_get_more_message<
     #     request_id:$request_id
@@ -338,14 +337,14 @@ sub refill_via_get_more {
         $self->batch_size);
     # warn "#refill_via_get_more > send_message...\n" if $self->_print_debug;
     $self->_connection->send_message($get_more_message);
-    
+
     # warn "#refill_via_get_more > recv_message...\n" if $self->_print_debug;
     my ($number_received,$cursor_id,$result) = $self->_connection->recv_message();
-    
+
     # warn "#refill_via_get_more > got number_received:$number_received cursor_id:$cursor_id...\n" if $self->_print_debug;
-    
+
     $self->{cursor_id} = $cursor_id;
-    
+
     push @{$self->{_result_cache}},@{$result} if $result;
     $self->{number_received} = $number_received;
     $self->{cursor_id} = $cursor_id;
@@ -400,16 +399,6 @@ __PACKAGE__->meta->make_immutable;
 1;
 __END__
 
-
-=head1 NAME
-
-AnyMongo::Cursor 
-
 =head1 SYNOPSIS
 
 =head1 DESCRIPTION
-
-=head1 AUTHOR
-
-=head1 COPYRIGHT
-

@@ -1,41 +1,5 @@
-package MongoDB;
-use parent 'AnyMongo';
-
-package MongoDB::Database;
-use parent 'AnyMongo::Database';
-
-package MongoDB::Connection;
-use parent 'AnyMongo::Connection';
-
-package MongoDB::Cursor;
-use parent 'AnyMongo::Cursor';
-
-package MongoDB::Collection;
-use parent 'AnyMongo::Collection';
-
-package MongoDB::BSON;
-use parent 'AnyMongo::BSON';
-
-package MongoDB::Code;
-use parent 'AnyMongo::BSON::Code';
-
-package MongoDB::OID;
-use parent 'AnyMongo::BSON::OID';
-
-# sub to_string {
-#     my ($self) = @_;
-#     return $self->value;
-# }
-# use overload
-#     '""' => 'to_string',
-#     'fallback' => 1;
-
-
-package MongoDB::Timestamp;
-use parent 'AnyMongo::BSON::Timestamp';
-
-
 package AnyMongo::Compat;
+# ABSTRACT: Make better compatible with L<MongoDB>.
 use strict;
 use warnings;
 use AnyMongo;
@@ -64,4 +28,29 @@ sub make_fake_isa {
 *AnyMongo::BSON::MaxKey::isa = make_fake_isa('MongoDB::MaxKey');
 *AnyMongo::BSON::MinKey::isa = make_fake_isa('MongoDB::MinKey');
 
+package MongoDB;
+use parent 'AnyMongo';
+
+package MongoDB::Database;
+use parent 'AnyMongo::Database';
+
+package MongoDB::Connection;
+use parent 'AnyMongo::Connection';
+
+package MongoDB::Cursor;
+use parent 'AnyMongo::Cursor';
+
+package MongoDB::Collection;
+use parent 'AnyMongo::Collection';
+
+package MongoDB::BSON;
+use parent 'AnyMongo::BSON';
+
+package MongoDB::Code;
+use parent 'AnyMongo::BSON::Code';
+
+package MongoDB::OID;
+use parent 'AnyMongo::BSON::OID';
+package MongoDB::Timestamp;
+use parent 'AnyMongo::BSON::Timestamp';
 1;

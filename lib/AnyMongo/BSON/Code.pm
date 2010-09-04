@@ -1,5 +1,5 @@
 package AnyMongo::BSON::Code;
-
+# ABSTRACT: BSON type,it's used to represent JavaScript code and, optionally, scope.
 use strict;
 use warnings;
 use namespace::autoclean;

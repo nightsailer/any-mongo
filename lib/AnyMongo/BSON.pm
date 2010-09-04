@@ -1,5 +1,5 @@
 package AnyMongo::BSON;
-
+# ABSTRACT: BSON encoding and decoding utilities
 use strict;
 use warnings;
 use AnyMongo;
@@ -23,17 +23,6 @@ $AnyMongo::BSON::use_boolean = 0;
 
 1;
 __END__
-
-
-=head1 NAME
-
-AnyMongo::BSON 
-
 =head1 SYNOPSIS
 
 =head1 DESCRIPTION
-
-=head1 AUTHOR
-
-=head1 COPYRIGHT
-

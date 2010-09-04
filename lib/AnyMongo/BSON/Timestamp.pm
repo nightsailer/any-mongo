@@ -1,5 +1,5 @@
 package AnyMongo::BSON::Timestamp;
-
+# ABSTRACT: BSON Timestamps data type, it is used internally by MongoDB's replication.
 use strict;
 use warnings;
 use namespace::autoclean;

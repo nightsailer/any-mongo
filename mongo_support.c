@@ -344,6 +344,7 @@ elem_to_sv (int type, buffer *buf)
     break;
   }
   case BSON_BOOL: {
+    dSP;
     char d = *buf->pos++;
     int count;
     SV *use_bool = get_sv("AnyMongo::BSON::use_boolean", 0);
@@ -353,8 +354,6 @@ elem_to_sv (int type, buffer *buf)
       break;
     }
 
-    dSP;
-    
     SAVETMPS;
     
     PUSHMARK(SP);

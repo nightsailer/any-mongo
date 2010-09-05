@@ -5,7 +5,9 @@ MODULE = AnyMongo  PACKAGE = AnyMongo
 PROTOTYPES: DISABLE
 
 BOOT:
-    gv_fetchpv("AnyMongo::bson_char",  GV_ADDMULTI, SVt_IV);
+    gv_fetchpv("AnyMongo::BSON::bson_char",  GV_ADDMULTI, SVt_IV);
+    gv_fetchpv("AnyMongo::BSON::utf8_flag_on",  GV_ADDMULTI, SVt_IV);
+    gv_fetchpv("AnyMongo::BSON::use_boolean",  GV_ADDMULTI, SVt_IV);
 
 MODULE = AnyMongo  PACKAGE = AnyMongo::BSON
 PROTOTYPES: DISABLE

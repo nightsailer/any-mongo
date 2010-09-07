@@ -18,6 +18,17 @@ has _connection => (
     required => 1,
 );
 
+has _socket_handle => (
+    isa => 'Maybe[AnyEvent::Handle]',
+    is  => 'rw',
+    lazy_build => 1,
+);
+
+sub _build__socket_handle {
+    my ($self) = @_;
+    $self->_connection->master_handle;
+}
+
 has tailable => (
     is => 'rw',
     isa => 'Bool',
@@ -258,8 +269,8 @@ sub send_initial_query {
 
     my $query = AnyMongo::MongoSupport::build_query_message($self->_next_request_id,$self->_ns,
         $opts, $self->_skip, $self->_limit, $self->_query, $self->_fields);
-    $self->_connection->send_message($query);
-    my ($number_received,$cursor_id,$result) = $self->_connection->recv_message();
+    $self->_connection->send_message($query,$self->_socket_handle);
+    my ($number_received,$cursor_id,$result) = $self->_connection->recv_message($self->_socket_handle);
     # warn "#send_initial_query number_received:$number_received cursor_id:".sprintf('%x',$cursor_id)." result#:".@{$result} if $self->_print_debug;
     # warn "#send_initial_query number_received:$number_received cursor_id:".sprintf('%x',$cursor_id);
     push @{$self->{_result_cache}},@{$result} if $result;
@@ -336,10 +347,10 @@ sub refill_via_get_more {
         $self->{cursor_id},
         $self->batch_size);
     # warn "#refill_via_get_more > send_message...\n" if $self->_print_debug;
-    $self->_connection->send_message($get_more_message);
+    $self->_connection->send_message($get_more_message,$self->_socket_handle);
 
     # warn "#refill_via_get_more > recv_message...\n" if $self->_print_debug;
-    my ($number_received,$cursor_id,$result) = $self->_connection->recv_message();
+    my ($number_received,$cursor_id,$result) = $self->_connection->recv_message($self->_socket_handle);
 
     # warn "#refill_via_get_more > got number_received:$number_received cursor_id:$cursor_id...\n" if $self->_print_debug;
 
@@ -379,7 +390,7 @@ sub kill_cursor {
     # warn "#kill_cursor ...\n" if $self->_print_debug;
     return unless $self->{cursor_id};
     my $message = AnyMongo::MongoSupport::build_kill_cursor_message($self->_next_request_id,$self->{cursor_id});
-    $self->_connection->send_message($message);
+    $self->_connection->send_message($message,$self->_socket_handle);
     $self->{cursor_id} = 0;
 }
 

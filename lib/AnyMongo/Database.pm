@@ -4,6 +4,14 @@ use strict;
 use warnings;
 use namespace::autoclean;
 use Any::Moose;
+use constant {
+    SYSTEM_NAMESPACE_COLLECTION => "system.namespaces",
+    SYSTEM_INDEX_COLLECTION => "system.indexes",
+    SYSTEM_PROFILE_COLLECTION => "system.profile",
+    SYSTEM_USER_COLLECTION => "system.users",
+    SYSTEM_JS_COLLECTION => "system.js",
+    SYSTEM_COMMAND_COLLECTION => '$cmd',
+};
 
 has _connection => (
     is       => 'ro',
@@ -20,6 +28,12 @@ has name => (
 sub BUILD {
     my ($self) = @_;
     Any::Moose::load_class("AnyMongo::Collection");
+}
+
+
+sub collection_ns {
+    my ($self,$collection_name) = @_;
+    return $self->name.'.'.$collection_name;
 }
 
 sub collection_names {
@@ -71,8 +85,15 @@ sub last_error {
 }
 
 sub run_command {
-    my ($self, $command) = @_;
-    my $obj = $self->get_collection('$cmd')->find_one($command);
+    my ($self, $command,$hd) = @_;
+    my $cursor = AnyMongo::Cursor->new(
+        _ns => $self->collection_ns(SYSTEM_COMMAND_COLLECTION),
+        _connection => $self->_connection,
+        _socket_handle => $hd,
+        _query => $command,
+        _limit => -1,
+        );
+    my $obj = $cursor->next;
     return $obj if ref $obj && $obj->{ok};
     $obj->{'errmsg'};
 }

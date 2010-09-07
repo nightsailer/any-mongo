@@ -1,7 +1,7 @@
 Installation Instructions
 ----------------------------------
 
-* Install from CPAN (Not ready yet)
+* Install from CPAN
 
 cpanm AnyMongo
 

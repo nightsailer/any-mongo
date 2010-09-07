@@ -16,6 +16,24 @@ XSLoader::load(__PACKAGE__, $AnyMongo::VERSION);
 1;
 __END__
 
+=head1 SYNOPSIS
+
+    use AnyMongo;
+
+    my $connection = AnyMongo::new_connection(host => 'mongodb://localhost:27017');
+    my $database   = $connection->get_database('foo');
+    my $collection = $database->get_collection('bar');
+    my $id         = $collection->insert({ some => 'data' });
+    my $data       = $collection->find_one({ _id => $id });
+
+    # AnyMongo also can run in official MongoDB compatible mode,
+    # Then you can run your old code depends on mongoDB quickly
+    use AnyMongo::Compat;
+    # now AnyMongo will mock most MongoDB package
+    my $con = MongoDB::Connection->new(host => 'mongodb://localhost');
+    my $db = $con->get_database('foo');
+
+
 =head1 MongoDB compatiblity
 
 

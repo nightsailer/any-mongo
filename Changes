@@ -1,6 +1,8 @@
 Revision history for AnyMongo
 
 {{$NEXT}}
+
+    - replica set support
     - fix dzil configuration error.
     - build documents minor.
 

@@ -28,29 +28,39 @@ sub make_fake_isa {
 *AnyMongo::BSON::MaxKey::isa = make_fake_isa('MongoDB::MaxKey');
 *AnyMongo::BSON::MinKey::isa = make_fake_isa('MongoDB::MinKey');
 
-package MongoDB;
+package
+ MongoDB;
 use parent 'AnyMongo';
 
-package MongoDB::Database;
+package
+ MongoDB::Database;
 use parent 'AnyMongo::Database';
 
-package MongoDB::Connection;
+package
+ MongoDB::Connection;
 use parent 'AnyMongo::Connection';
 
-package MongoDB::Cursor;
+package
+ MongoDB::Cursor;
 use parent 'AnyMongo::Cursor';
 
-package MongoDB::Collection;
+package
+ MongoDB::Collection;
 use parent 'AnyMongo::Collection';
 
-package MongoDB::BSON;
+package
+ MongoDB::BSON;
 use parent 'AnyMongo::BSON';
 
-package MongoDB::Code;
+package
+ MongoDB::Code;
 use parent 'AnyMongo::BSON::Code';
 
-package MongoDB::OID;
+package
+ MongoDB::OID;
 use parent 'AnyMongo::BSON::OID';
-package MongoDB::Timestamp;
+
+package
+ MongoDB::Timestamp;
 use parent 'AnyMongo::BSON::Timestamp';
 1;

@@ -44,7 +44,8 @@ is($coll->count, 1, 'count');
 is($coll->find_one->{perl}, 'hacker', 'find_one');
 is($coll->find_one->{_id}->value, $id->value, 'insert id');
 
-is($db->run_command({ foo => 'bar' }), "no such cmd");
+# is($db->run_command({ foo => 'bar' }), "no such cmd: foo");
+like($db->run_command({ foo => 'bar' }), qr/no such cmd/,'invalid command');
 
 # getlasterror
 SKIP: {
